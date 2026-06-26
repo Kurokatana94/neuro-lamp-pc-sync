@@ -1,0 +1,35 @@
+{
+    "user_settings": {
+        "rgb_software": "OpenRGB",
+        "ip_address": "127.0.0.1",
+        "port": 6742,
+        "run_on_startup": false,
+        "effect": "fade",
+        "duration": 0.4,
+        "steps": 25
+    },
+    "openrgb_default_profile": "default",
+    "rgb_supported_softwares": [
+        "OpenRGB",
+        "SignalRGB"
+    ],
+    "supported_effects": {
+        "openrgb": [
+            "direct",
+            "fade"
+        ],
+        "signalrgb": [
+            "direct"
+        ]
+    },
+    "effects": {
+        "direct": {
+            "duration": 0,
+            "steps": 1
+        },
+        "fade": {
+            "duration": 0.4,
+            "steps": 25
+        }
+    }
+}

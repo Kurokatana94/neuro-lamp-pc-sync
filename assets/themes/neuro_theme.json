@@ -1,0 +1,77 @@
+{
+    "CTk": {
+        "fg_color": ["#ff8ab6", "#1A1D21"]
+    },
+    "CTkToplevel": {
+        "fg_color": ["#ff8ab6", "#1A1D21"]
+    },
+    "CTkFrame": {
+        "corner_radius": 8,
+        "border_width": 1,
+        "border_color": ["#ff8ab6", "#2C2F33"],
+        "fg_color": ["#ff8ab6", "#1A1D21"]
+    },
+    "CTkLabel": {
+        "corner_radius": 0,
+        "fg_color": "transparent",
+        "text_color": ["#000000", "#FFFFFF"]
+    },
+    "CTkButton": {
+        "corner_radius": 8,
+        "border_width": 1,
+        "border_color": ["#E0E0E0", "#2C2F33"],
+        "fg_color": ["#85e1e7", "#1A1D21"],
+        "hover_color": ["#E0E0E0", "#2C2F33"],
+        "text_color": ["#000000", "#FFFFFF"],
+        "text_color_disabled": ["#6B7280", "#7A828F"]
+    },
+    "CTkEntry": {
+        "corner_radius": 8,
+        "border_width": 1,
+        "border_color": ["#E0E0E0", "#2C2F33"],
+        "fg_color": ["#85e1e7", "#1A1D21"],
+        "text_color": ["#000000", "#FFFFFF"],
+        "placeholder_text_color": ["#808080", "#808080"]
+    },
+    "CTkOptionMenu": {
+        "corner_radius": 8,
+        "fg_color": ["#85e1e7", "#1A1D21"],
+        "button_color": ["#85e1e7", "#2C2F33"],
+        "button_hover_color": ["#D0D4D9", "#373C43"],
+        "text_color": ["#000000", "#FFFFFF"],
+        "text_color_disabled": ["#6B7280", "#7A828F"]
+    },
+    "CTkSwitch": {
+        "corner_radius": 1000,
+        "border_width": 1,
+        "button_length": 12,
+        "fg_color": ["#ca303f", "#2A2F38"],
+        "progress_color": ["#269538", "#3B82F6"],
+        "button_color": ["#85e1e7", "#FFFFFF"],
+        "button_hover_color": ["#EEF2F7", "#E5EAF2"],
+        "text_color": ["#000000", "#FFFFFF"],
+        "text_color_disabled": ["#6B7280", "#7A828F"]
+    },
+    "DropdownMenu": {
+        "fg_color": ["#85e1e7", "#1A1D21"],
+        "hover_color": ["#E8ECF1", "#2A2F38"],
+        "text_color": ["#000000", "#FFFFFF"]
+    },
+    "CTkFont": {
+        "macOS": {
+            "family": "SF Display",
+            "size": 13,
+            "weight": "bold"
+        },
+        "Windows": {
+            "family": "Segoe UI",
+            "size": 13,
+            "weight": "bold"
+        },
+        "Linux": {
+            "family": "Roboto",
+            "size": 13,
+            "weight": "bold"
+        }
+    }
+}
