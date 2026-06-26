@@ -9,7 +9,7 @@ import random
 DEFAULT_PROFILE = 'neurosyncdefaultprofile'
 config_settings = None
 
-test_hex_values = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#ffffff", "#000000"]
+# test_hex_values = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#ffffff", "#000000"]
 
 class SyncManager:
     def __init__(self, user_settings: UserSettings):
@@ -39,18 +39,21 @@ class SyncManager:
                 else:
                     if self.was_live:
                         self.was_live = False
-                        self.client.update_profiles()
-                        try:
-                            self.client.load_profile(DEFAULT_PROFILE)
-                        except:
-                            print("Default profile not found, using OpenRGB default profile")
-            
+                        self.reset_to_default()
             except Exception as e:
                 print(f"Error: {e}")
         else:
             print("No devices found. Please check your OpenRGB connection.")
         
         time.sleep(1 if self.was_live else 30)
+    
+    def reset_to_default(self):
+        if self.devices:
+            self.client.update_profiles()
+            try:
+                self.client.load_profile(DEFAULT_PROFILE)
+            except:
+                print("Default profile not found, using OpenRGB default profile")
             
 
     # ===================== Color Fading =====================

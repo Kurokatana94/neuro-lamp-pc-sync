@@ -4,9 +4,17 @@ import hPyT
 import winreg as reg
 import sys
 import json
+import os
 
 ctk.set_appearance_mode("light")
-ctk.set_default_color_theme("assets/themes/neuro_theme.json")
+
+
+def resource_path(*parts: str) -> str:
+    base_path = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent.parent))
+    return str(base_path.joinpath(*parts))
+
+
+ctk.set_default_color_theme(resource_path("assets", "themes", "neuro_theme.json"))
 
 class UserSettings:
     _instance = None
@@ -20,16 +28,27 @@ class UserSettings:
     def __init__(self):
         if self._initialized:
             return
-        self.config_path = Path("config.json")
+        appdata_dir = Path(os.getenv("APPDATA", str(Path.home()))) / "NeuroLampSync"
+        appdata_dir.mkdir(parents=True, exist_ok=True)
+        self.config_path = appdata_dir / "config.json"
+
+        # Backward compatibility: migrate local config if present and AppData config is missing.
+        local_config = Path("config.json")
+        if not self.config_path.exists() and local_config.exists():
+            try:
+                self.config_path.write_text(local_config.read_text(encoding="utf-8"), encoding="utf-8")
+            except Exception:
+                pass
+
         self.config = self.load_settings()
         self._initialized = True
     
     def load_settings(self):
         try:
-            with open('config.json', 'r') as f:
+            with open(self.config_path, 'r', encoding='utf-8') as f:
                 config_settings = json.load(f)
                 print(f"Config settings: {config_settings}")
-        except FileNotFoundError:
+        except (FileNotFoundError, json.JSONDecodeError):
             print("Config file not found. Using default settings.")
             config_settings = self.create_new_config()
 
@@ -76,7 +95,7 @@ class UserSettings:
             }
         }
         try:
-            with open('config.json', 'w') as f:
+            with open(self.config_path, 'w', encoding='utf-8') as f:
                 json.dump(self.default_config, f, indent=4)
         except Exception as e:
             print(f"Error creating config file: {e}")
@@ -88,7 +107,7 @@ class UserSettings:
     def save_settings(self, new_user_settings: dict) -> dict:
         try:
             self.config["user_settings"] = new_user_settings
-            with open('config.json', 'w') as f:
+            with open(self.config_path, 'w', encoding='utf-8') as f:
                 json.dump(self.config, f, indent=4)
 
             return {"success": True, "message": "Settings saved successfully."}
@@ -103,14 +122,23 @@ class UserSettings:
             key = reg.OpenKey(reg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, reg.KEY_SET_VALUE)
 
             if state:
-                exe_path = sys.executable
-                reg.SetValueEx(key, "NeuroLampSync", 0, reg.REG_SZ, exe_path)
+                if getattr(sys, "frozen", False):
+                    startup_command = f'"{Path(sys.executable).resolve()}"'
+                else:
+                    startup_command = f'"{Path(sys.executable).resolve()}" "{Path(sys.argv[0]).resolve()}"'
+
+                reg.SetValueEx(key, "NeuroLampSync", 0, reg.REG_SZ, startup_command)
             else:
-                reg.DeleteValue(key, "NeuroLampSync")
+                try:
+                    reg.DeleteValue(key, "NeuroLampSync")
+                except FileNotFoundError:
+                    pass
 
             reg.CloseKey(key)
+            return {"success": True, "message": "Startup setting updated."}
         except Exception as e:
             print(f"Error setting startup state: {e}")
+            return {"success": False, "message": f"Error updating startup setting: {e}"}
 
     def reset_to_default(self):
         try:
@@ -146,7 +174,7 @@ class SettingsWindow:
 
         self.root.grid_columnconfigure(1, weight=1)
 
-        self.root.iconbitmap("assets/neuro-lava-lamp-sync-256x256.ico")
+        self.root.iconbitmap(resource_path("assets", "neuro-lava-lamp-sync-256x256.ico"))
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
@@ -391,12 +419,23 @@ class SettingsWindow:
 
     def on_startup_toggle(self):
         self.on_error("")
-        self.settings["run_on_startup"] = self.startup_var.get()
+        new_state = self.startup_var.get()
+        self.settings["run_on_startup"] = new_state
         result = self.settings_manager.save_settings(self.settings)
 
         if not result["success"]:
             self.on_error(result["message"])
-        self.settings_manager.set_startup_state(self.startup_var.get())
+            self.startup_var.set(not new_state)
+            self.settings["run_on_startup"] = not new_state
+            return
+
+        startup_result = self.settings_manager.set_startup_state(new_state)
+        if not startup_result["success"]:
+            self.on_error(startup_result["message"])
+            # Revert toggle and persisted state when startup registration fails.
+            self.startup_var.set(not new_state)
+            self.settings["run_on_startup"] = not new_state
+            self.settings_manager.save_settings(self.settings)
 
     def on_save(self):
         self.on_error("")

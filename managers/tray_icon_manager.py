@@ -1,22 +1,25 @@
 from PIL import Image, ImageDraw
-from managers.settings_manager import UserSettings, SettingsWindow
+from managers.settings_manager import UserSettings, SettingsWindow, resource_path
 import pystray
 import threading
-import os
+import managers.rgb_sync_manager as rgb_sync_manager
 
 class TrayIconManager:
     def __init__(self, app: function, settings_manager: UserSettings):
         self.app = app
         self.settings_manager = settings_manager
+        self.sync_manager = rgb_sync_manager.SyncManager(settings_manager)
         self._settings_window_open = False
-        self.on_icon = Image.open("assets/neuro-lava-lamp-sync-on-64x64.png")
-        self.off_icon = Image.open("assets/neuro-lava-lamp-sync-off-64x64.png")
-        self.base_icon = Image.open("assets/neuro-lava-lamp-sync-64x64.png")
+        self.settings_window = None
+        self.on_icon = Image.open(resource_path("assets", "neuro-lava-lamp-sync-on-64x64.png"))
+        self.off_icon = Image.open(resource_path("assets", "neuro-lava-lamp-sync-off-64x64.png"))
+        self.base_icon = Image.open(resource_path("assets", "neuro-lava-lamp-sync-64x64.png"))
         self.setup_tray()
     
     def on_exit(self, icon, item):
         icon.stop()
-        os._exit(0)
+        self.sync_manager.reset_to_default()
+        raise SystemExit
 
     def setup_tray(self):
         icon = pystray.Icon(
@@ -42,8 +45,8 @@ class TrayIconManager:
 
         def run_settings_window():
             try:
-                settings_window = SettingsWindow(self.settings_manager)
-                settings_window.run()
+                self.settings_window = SettingsWindow(self.settings_manager)
+                self.settings_window.run()
             finally:
                 self._settings_window_open = False
 

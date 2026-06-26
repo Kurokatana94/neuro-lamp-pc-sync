@@ -180,4 +180,6 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-colors_ro_test
+dist-installer
+
+installer
