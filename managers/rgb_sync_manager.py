@@ -17,19 +17,21 @@ class SyncManager:
         self.user_settings = user_settings
         self.devices = self.client.devices if len(self.client.devices) > 0 else None
         self.was_live = False
-        self.last_hex = None
+        self.last_hex = "#000000"
 
-    def update_color(self):
+    def update_color(self, hex: str, live: bool):
         if self.devices:
             print("Updating colors...")
             try:
-                response = requests.get('http://api.neurolavalamp.com/v1/rgb')
-                response = response.json()
-                print(f"Response: {response}")
-                hex = response['hex']
+                # Legacy client code for testing without library
+
+                # response = requests.get('http://api.neurolavalamp.com/v1/rgb')
+                # response = response.json()
+                # print(f"Response: {response}")
+                # hex = response['hex']
                 # hex = random.choice(test_hex_values) for testing
                 
-                if response['live']:
+                if live:
                     if (self.was_live == False):
                         self.was_live = True
                         self.client.save_profile(DEFAULT_PROFILE)
@@ -45,7 +47,7 @@ class SyncManager:
         else:
             print("No devices found. Please check your OpenRGB connection.")
         
-        time.sleep(1 if self.was_live else 30)
+        # time.sleep(1 if self.was_live else 30)
     
     def reset_to_default(self):
         if self.devices:
