@@ -9,7 +9,7 @@ Do you like Neuro-sama's Lava Lamp? What if she could also control your PC RGBs?
 
 ---
 
-## [Download](https://github.com/Kurokatana94/neuro-lamp-pc-sync/releases/download/v1.0.0/NeuroLampSync-Setup.exe)
+## [Download v1.1.0](https://github.com/Kurokatana94/neuro-lamp-pc-sync/releases/download/v1.1.0/NeuroLampSync-Setup-1.1.0.exe)
 
 ---
 
