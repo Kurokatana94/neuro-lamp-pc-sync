@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from tkinter import filedialog
 from pathlib import Path
 import hPyT
 import winreg as reg
@@ -67,7 +68,8 @@ class UserSettings:
                 "run_on_startup": False,
                 "effect": "direct",
                 "duration": 0,
-                "steps": 1
+                "steps": 1,
+                "signalrgb_effect_path": None
             },
             "openrgb_default_profile": "default",
             "rgb_supported_softwares": [
@@ -116,6 +118,18 @@ class UserSettings:
             return {"success": False, "message": f"Error saving settings: {e}"}
 
     # ==================== Set Settings =====================
+
+    def get_signalrgb_effect_path(self) -> str | None:
+        if not self.config["user_settings"].get("signalrgb_effect_path"):
+            effect_name = "NeuroLampSync.html"
+            signalrgb_effects_dir = Path.home() / "Documents" / "WhirlwindFX" / "Effects"
+            file_path = signalrgb_effects_dir / effect_name
+            self.config["user_settings"]["signalrgb_effect_path"] = str(file_path)
+            self.save_settings(self.config["user_settings"])
+        else:
+            file_path = Path(self.config["user_settings"]["signalrgb_effect_path"])
+
+        return str(file_path)
 
     def set_startup_state(self, state: bool):
         try:
@@ -271,6 +285,27 @@ class SettingsWindow:
         self.steps_entry.grid(row=row, column=input_column, pady=4, padx=10, sticky="e")
         row += 1
 
+        # ============================= Effect Path (only for SignalRGB) =============================
+
+        self.effect_path_label = ctk.CTkLabel(self.root, text="Effect Path:")
+        self.effect_path_label.grid(row=row, column=label_column, pady=4, padx=10, sticky="w")
+        
+        self.effect_path_frame = ctk.CTkFrame(self.root, fg_color="transparent")
+        self.effect_path_frame.grid(row=row, column=input_column, pady=4, padx=10, sticky="ew")
+        self.effect_path_frame.grid_columnconfigure(0, weight=1)
+
+        self.effect_path_var = ctk.StringVar(
+            value=self.settings["signalrgb_effect_path"] if self.settings["signalrgb_effect_path"] else ""
+        )
+        self.effect_path_entry = ctk.CTkEntry(self.effect_path_frame, textvariable=self.effect_path_var)
+        self.effect_path_entry.grid(row=0, column=0, sticky="ew")
+
+        self.effect_path_browse_button = ctk.CTkButton(self.effect_path_frame, text="...", command=self.on_browse_path,
+            width=32,
+            corner_radius=8)
+        self.effect_path_browse_button.grid(row=0, column=1, padx=(8, 0), sticky="e")
+        row += 1
+
         # ============================= IP Address (only for OpenRGB) =============================
         self.ip_address_label = ctk.CTkLabel(self.root, text="IP Address:")
         self.ip_address_label.grid(row=row, column=label_column, pady=4, padx=10, sticky="w")
@@ -337,6 +372,9 @@ class SettingsWindow:
             self.port_label.grid()
             self.port_var.grid()
 
+            self.effect_path_label.grid_remove()
+            self.effect_path_frame.grid_remove()
+
             self.repopulate_effect_dropdown()
         else:
             self.ip_address_label.grid_remove()
@@ -344,9 +382,13 @@ class SettingsWindow:
 
             self.port_label.grid_remove()
             self.port_var.grid_remove()
+
+            self.effect_path_label.grid()
+            self.effect_path_frame.grid()
+
             self.repopulate_effect_dropdown()
 
-            self.on_error("To use SignalRGB you must have a PRO account.")
+            # self.on_error("To use SignalRGB you must have a PRO account.")
 
     def repopulate_effect_dropdown(self):
         current_effect = self.effect_var.get()
@@ -408,12 +450,16 @@ class SettingsWindow:
             self.duration_label.grid()
             self.duration_entry.grid()
 
-            self.steps_label.grid()
-            self.steps_entry.grid()
+            if self.rgb_software_var.get() == "OpenRGB":
+                self.steps_label.grid()
+                self.steps_entry.grid()
+            else:
+                self.steps_label.grid_remove()
+                self.steps_entry.grid_remove()
         else:
             self.duration_label.grid_remove()
             self.duration_entry.grid_remove()
-
+            
             self.steps_label.grid_remove()
             self.steps_entry.grid_remove()
 
@@ -444,6 +490,7 @@ class SettingsWindow:
         self.settings["ip_address"] = self.ip_address_var.get()
         self.settings["port"] = int(self.port_var.get())
         self.settings["run_on_startup"] = self.startup_var.get()
+        self.settings["signalrgb_effect_path"] = self.effect_path_var.get() if self.effect_path_var.get() else None
 
         # Update effect settings
         selected_effect = self.settings["effect"]
@@ -460,6 +507,11 @@ class SettingsWindow:
             self.on_error(result["message"])
         else:
             self.message_label.configure(text="Saved!", text_color="green")
+
+    def on_browse_path(self):
+        file_path = filedialog.askopenfilename(filetypes=[("HTML files", "*.html")], initialdir=Path.home() / "Documents" / "WhirlwindFX" / "Effects", title="Select SignalRGB Effect HTML File")
+        if file_path:
+            self.effect_path_var.set(file_path)
 
     def on_reset(self):
         self.on_error("")

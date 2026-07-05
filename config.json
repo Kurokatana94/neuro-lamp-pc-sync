@@ -6,7 +6,8 @@
         "run_on_startup": false,
         "effect": "fade",
         "duration": 0.4,
-        "steps": 25
+        "steps": 25,
+        "signalrgb_effect_path": null
     },
     "openrgb_default_profile": "default",
     "rgb_supported_softwares": [
