@@ -9,7 +9,7 @@ Do you like Neuro-sama's Lava Lamp? What if she could also control your PC RGBs?
 
 ---
 
-## [Download v1.1.0](https://github.com/Kurokatana94/neuro-lamp-pc-sync/releases/download/v1.1.0/NeuroLampSync-Setup-1.1.0.exe)
+## [Download v1.2.0](https://github.com/Kurokatana94/neuro-lamp-pc-sync/releases/download/v1.2.0/NeuroLampSync-Setup-1.2.0.exe)
 
 ---
 
@@ -23,7 +23,15 @@ If you're not sure which version to download, check the supported devices sectio
 
 **or**
 
-- **SignalRGB Pro** — *Currently not supported*
+- [**SignalRGB**](https://signalrgb.com/)
+
+⚠️ **Epilepsy Warning** ⚠️  
+
+SignalRGB support is **experimental**.
+
+There may be a noticeable flicker when Neuro changes the color due to how SignalRGB handles custom effects.
+
+This is a known limitation.
 
 ---
 
@@ -38,9 +46,25 @@ Right-click the tray icon and click **Settings** to configure the app.
 
 <img width="357" height="242" alt="image" src="https://github.com/user-attachments/assets/997b2fd8-677b-4f1e-a426-37c0376e4a94" />
 
-If using **OpenRGB**, make sure the IP address and port match your OpenRGB settings.
+### **OpenRGB**
+- Make sure the IP address and port match your OpenRGB settings.
 
 <img width="1424" height="544" alt="Recording 2026-06-26 023305" src="https://github.com/user-attachments/assets/324c1658-971d-4e30-a8df-c91f787a0752" />
+
+### **SignalRGB**
+- Download the effect from [here](https://github.com/Kurokatana94/neuro-lamp-pc-sync/blob/main/assets/signal_rgb_effects/NeuroLampSync.html)
+
+<img width="460" height="268" alt="Recording 2026-07-05 032428" src="https://github.com/user-attachments/assets/e2fee851-efbd-4deb-a908-d7f34795f9cb" />
+
+- Insert it in SignalRGB's effects folder.
+
+Generally found in: 
+```
+%USERNAME%\Documents\WhirlwindFX\Effects
+```
+- Restart SignalRGB's app and activate it!
+
+- (Optional) If you want to create a personalized effect, you must first read the [template](https://github.com/Kurokatana94/neuro-lamp-pc-sync/blob/main/assets/signal_rgb_effects/template/NeuroLampSyncSolid-template.html) and follow the instructions
 
 ---
 
