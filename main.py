@@ -12,7 +12,7 @@ sync_manager = SyncManager(user_settings)
 async def main_loop() -> None:
     settle_delay_seconds = 1.6
 
-    async with LavaLampClient("https://api.neurolavalamp.com") as client:
+    async with LavaLampClient(user_settings.fetch_api_url()) as client:
         pending_settle_task: asyncio.Task | None = None
 
         async def apply_settled_live_color() -> None:
@@ -20,7 +20,7 @@ async def main_loop() -> None:
             settled_state = await client.get_state()
             if settled_state.live:
                 await asyncio.to_thread(sync_manager.update_color, settled_state.hex, True)
-
+        
         async for state in client.stream_states():
             print(state.rgb_list, state.hex, state.live)
 

@@ -15,9 +15,10 @@ config_settings = None
 
 class SyncManager:
     def __init__(self, user_settings: UserSettings):
-        self.client = OpenRGBClient()
         self.user_settings = user_settings
-        self.devices = self.client.devices if len(self.client.devices) > 0 else None
+        self.client = None
+        self.devices = None
+        self.init_openrgb_client()
         self.was_live = False
         self.last_hex = "#000000"
 
@@ -33,35 +34,40 @@ class SyncManager:
     # ===================== OpenRGB Color Update =====================
 
     def openrgb_update_color(self, hex, live: bool):
-        if self.devices:
-            print("Updating colors...")
-            try:
-                # Legacy client code for testing without library
+        try:
+            if self.devices:
+                print("Updating colors...")
+                try:
+                    # Legacy client code for testing without library
 
-                # response = requests.get('http://api.neurolavalamp.com/v1/rgb')
-                # response = response.json()
-                # print(f"Response: {response}")
-                # hex = response['hex']
-                # hex = random.choice(test_hex_values) for testing
-                
-                if live:
-                    if (self.was_live == False):
-                        self.was_live = True
-                        self.client.save_profile(DEFAULT_PROFILE)
-                    if self.last_hex != hex:
-                        self.fade_to_hex(
-                            hex,
-                            duration=self.user_settings.config["user_settings"]["duration"], 
-                            steps=self.user_settings.config["user_settings"]["steps"])
-                        self.last_hex = hex
-                else:
-                    if self.was_live:
-                        self.was_live = False
-                        self.reset_to_default()
-            except Exception as e:
-                print(f"Error: {e}")
-        else:
-            print("No devices found. Please check your OpenRGB connection.")
+                    # response = requests.get('http://api.neurolavalamp.com/v1/rgb')
+                    # response = response.json()
+                    # print(f"Response: {response}")
+                    # hex = response['hex']
+                    # hex = random.choice(test_hex_values) for testing
+                    
+                    if live:
+                        if (self.was_live == False):
+                            self.was_live = True
+                            self.client.save_profile(DEFAULT_PROFILE)
+                        if self.last_hex != hex:
+                            self.fade_to_hex(
+                                hex,
+                                duration=self.user_settings.config["user_settings"]["duration"], 
+                                steps=self.user_settings.config["user_settings"]["steps"])
+                            self.last_hex = hex
+                    else:
+                        if self.was_live:
+                            self.was_live = False
+                            self.reset_to_default()
+                except Exception as e:
+                    print(f"Error: {e}")
+            else:
+                print("No devices found. Please check your OpenRGB connection.")
+                self.init_openrgb_client()
+        except Exception as e:
+            print(f"Failed to update OpenRGB colors: {e}")
+            self.signalrgb_fallback()
         
         # time.sleep(1 if self.was_live else 30)
 
@@ -209,3 +215,21 @@ class SyncManager:
 
             time.sleep(delay)
 
+    # ===================== Initialization =====================
+
+    def init_openrgb_client(self):
+        try:
+            self.client = OpenRGBClient()
+            self.devices = self.client.devices if len(self.client.devices) > 0 else None
+            print("OpenRGB client initialized successfully.")
+        except Exception as e:
+            print(f"Failed to initialize OpenRGB client: {e}")
+            self.signalrgb_fallback()
+
+
+    # ===================== Handle Missing Software Exception =====================
+
+    def signalrgb_fallback(self):
+        print("SignalRGB is set as fallback. Please ensure SignalRGB is installed and running.")
+        self.user_settings.config["user_settings"]["rgb_software"] = "SignalRGB"
+        self.user_settings.save_settings(self.user_settings.config["user_settings"])
