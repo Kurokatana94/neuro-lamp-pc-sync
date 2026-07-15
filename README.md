@@ -58,8 +58,10 @@ Right-click the tray icon and click **Settings** to configure the app.
   - By choosing the "Install System Service" option when installing OpenRGB (this will allow OpenRGB's server to be always running, even when the app itself isn't);
   <img width="495" height="387" alt="image" src="https://github.com/user-attachments/assets/6627bf04-e746-4e55-aa7e-b9375ccfee96" />
 
-  - Or by checking the "Start Server" option in the settings (which will start the server automatically every time OpenRGB gets started.
+  - By checking the "Start Server" option in the settings (which will start the server automatically every time OpenRGB gets started;
   <img width="634" height="364" alt="20260715-2305-48 3466613" src="https://github.com/user-attachments/assets/c0e6e2e6-eefd-468c-ba6e-aa3a6459afde" />
+
+  - Or by manually starting the server from the "SDK Server" tab.
 
 - Make sure the IP address and port match your OpenRGB settings.
 
