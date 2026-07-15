@@ -1,7 +1,7 @@
 from openrgb import OpenRGBClient
 from openrgb.utils import RGBColor
-from managers.settings_manager import UserSettings
 from pathlib import Path
+import threading
 import hPyT
 import requests
 import time
@@ -14,8 +14,9 @@ config_settings = None
 # test_hex_values = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#ffffff", "#000000"]
 
 class SyncManager:
-    def __init__(self, user_settings: UserSettings):
+    def __init__(self, user_settings):
         self.user_settings = user_settings
+        self.cancel_color_update = False
         self.client = None
         self.devices = None
         self.init_openrgb_client()
@@ -72,6 +73,8 @@ class SyncManager:
         # time.sleep(1 if self.was_live else 30)
 
     def reset_to_default(self):
+        self.cancel_color_update = True
+        time.sleep(0.1)
         if self.user_settings.config["user_settings"]["rgb_software"] == "OpenRGB":
             if self.devices:
                 self.client.update_profiles()
@@ -202,6 +205,8 @@ class SyncManager:
         delay = duration / steps
 
         for i in range(1, steps + 1):
+            if self.cancel_color_update:
+                break
             t = i / steps
             r = int(current[0] + (target[0] - current[0]) * t)
             g = int(current[1] + (target[1] - current[1]) * t)

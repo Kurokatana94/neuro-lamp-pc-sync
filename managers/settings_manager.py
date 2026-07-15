@@ -1,8 +1,11 @@
-import customtkinter as ctk
+from managers.rgb_sync_manager import SyncManager
 from tkinter import filedialog
 from pathlib import Path
-import hPyT
+import customtkinter as ctk
 import winreg as reg
+import hPyT
+import asyncio
+import time
 import sys
 import json
 import os
@@ -199,8 +202,10 @@ class UserSettings:
 
 
 class SettingsWindow:
-    def __init__(self, settings_manager):
+    def __init__(self, settings_manager, sync_manager: SyncManager, icon):
         self.settings_manager: UserSettings = settings_manager
+        self.icon = icon
+        self.sync_manager = sync_manager
         self.settings: dict = self.settings_manager.config["user_settings"]
         self.root = ctk.CTk()
 
@@ -387,7 +392,7 @@ class SettingsWindow:
 
         # ============================= Toggle Test Mode =============================
         self.test_mode_var = ctk.BooleanVar(value=self.settings["test_mode"])
-        ctk.CTkLabel(settings_frame, text="Test Mode (requires restart):"
+        ctk.CTkLabel(settings_frame, text="Test Mode (restarts app automatically):"
             ).grid(row=setting_row, column=label_column, pady=4, padx=10, sticky="w")
         ctk.CTkSwitch(settings_frame, 
             text="", 
@@ -562,6 +567,7 @@ class SettingsWindow:
             self.settings["test_mode"] = not new_state
             return
         
+        self.root.after(300, self.on_restart)
 
     def on_save(self):
         self.on_error("")
@@ -612,6 +618,43 @@ class SettingsWindow:
     def on_close(self):
         self.root.quit()
         self.root.destroy()
+    
+    def on_restart(self):
+        """
+        Restart the application by stopping the current icon and starting a new instance.
+        """
+        try:
+            import tkinter.messagebox as msgbox
+            msgbox.showinfo("Restarting", "Test Mode changed.\n\nThe application will now restart.")
+            asyncio.create_task(self._perform_restart())
+        except Exception:
+            self._perform_restart_sync()
+    
+    async def _perform_restart(self):
+        """
+        Perform the actual restart of the application asynchronously.
+        """
+        await asyncio.sleep(.8)
+        self.sync_manager.reset_to_default()
+
+        try:
+            if hasattr(self, 'main_task') and self.main_task:
+                self.main_task.cancel()
+        except:
+            pass
+        
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
+
+    def _perform_restart_sync(self):
+        """
+        Synchronous fallback for restarting the application if async fails.
+        """
+        time.sleep(.8)
+        self.sync_manager.reset_to_default()
+
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
 
     def run(self):
         self.root.mainloop()

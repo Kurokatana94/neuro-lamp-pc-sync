@@ -45,7 +45,7 @@ class TrayIconManager:
         self.sync_manager.reset_to_default()
         raise SystemExit
 
-    def open_settings(self, icon=None, item=None):
+    def open_settings(self, icon, item=None):
         if self._settings_window_open:
             return
 
@@ -53,7 +53,7 @@ class TrayIconManager:
 
         def run_settings_window():
             try:
-                self.settings_window = SettingsWindow(self.settings_manager)
+                self.settings_window = SettingsWindow(self.settings_manager, self.sync_manager, icon)
                 self.settings_window.run()
             finally:
                 self._settings_window_open = False
