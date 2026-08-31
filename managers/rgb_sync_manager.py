@@ -74,17 +74,20 @@ class SyncManager:
 
     def reset_to_default(self):
         self.cancel_color_update = True
-        time.sleep(0.1)
-        if self.user_settings.config["user_settings"]["rgb_software"] == "OpenRGB":
-            if self.devices:
-                self.client.update_profiles()
-                try:
-                    self.client.load_profile(DEFAULT_PROFILE)
-                except:
-                    print("Default profile not found, using OpenRGB default profile")
-        else:
-            print("Resetting to default colors...")
-            self.signalrgb_update_color(self.last_hex, False)
+        try:
+            time.sleep(0.1)
+            if self.user_settings.config["user_settings"]["rgb_software"] == "OpenRGB":
+                if self.devices:
+                    self.client.update_profiles()
+                    try:
+                        self.client.load_profile(DEFAULT_PROFILE)
+                    except:
+                        print("Default profile not found, using OpenRGB default profile")
+            else:
+                print("Resetting to default colors...")
+                self.signalrgb_update_color(self.last_hex, False)
+        finally:
+            self.cancel_color_update = False
 
     # ===================== SignalRGB Color Update ===================== 
 
@@ -206,6 +209,7 @@ class SyncManager:
 
         for i in range(1, steps + 1):
             if self.cancel_color_update:
+                print("Fade canceled before applying next color step.")
                 break
             t = i / steps
             r = int(current[0] + (target[0] - current[0]) * t)
